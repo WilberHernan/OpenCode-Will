@@ -35,12 +35,20 @@ if (!(Get-Command scoop -ErrorAction SilentlyContinue)) {
 }
 ```
 
-### 0.5 Install Go (if not present) — needed for engram
+### 0.5 Check Node.js/npm — needed for MCPs and plugins
+```powershell
+node --version
+npm --version
+```
+If not found: guide user to install from https://nodejs.org/ (LTS version, default options).
+After install, close and reopen PowerShell or run `refreshenv` (if using scoop).
+
+### 0.6 Install Go (if not present) — needed for engram binary
 ```powershell
 go version
 ```
 If not found: guide user to install from https://go.dev/dl/ (default options are fine).
-After install, close and reopen the terminal so PATH is updated.
+After install: close and reopen PowerShell or run `refreshenv` so `$env:USERPROFILE\go\bin` is in PATH.
 
 ---
 
@@ -76,11 +84,9 @@ if (Test-Path $configDir) {
         Write-Host "Back up any custom files, then delete the directory and clone fresh."
     }
 } else {
-    git clone <REPO_URL> $configDir
+    git clone https://github.com/WilberHernan/OpenCode-Will.git $configDir
 }
 ```
-
-Replace `<REPO_URL>` with the actual GitHub URL. Ask the user if you don't know it.
 
 ### 2.2 If updating an existing installation
 ```powershell
@@ -127,17 +133,23 @@ whisper-cpp -m download -M base
 ```
 If the download fails, try again or suggest using a VPN.
 
-### 4.2 Pull Ollama model
+### 4.2 Install Ollama (if not already installed via scoop)
+If Ollama wasn't installed via `scoop install ollama` above (or is not working), install the Windows version from https://ollama.com/ — it runs as a proper Windows background service.
+
+### 4.3 Pull Ollama model
 ```powershell
 ollama pull qwen2.5:0.5b
 ```
-This downloads ~397 MB. It may take a few minutes.
+> **Note**: This downloads ~397 MB. It may take a few minutes.
+> If `ollama pull` fails: make sure Ollama is running. On Windows, look for the Ollama icon in the system tray.
+> If not running: start it via `ollama serve` (opens a background window — this is normal).
 
-### 4.3 Start and verify Ollama
-> **Note**: `ollama serve` runs in the background. If ollama was already installed, it might already be running as a Windows service.
+### 4.4 Verify Ollama responds
 ```powershell
-ollama serve
+$body = @{ model = "qwen2.5:0.5b"; prompt = "hi"; stream = $false } | ConvertTo-Json
+Invoke-RestMethod -Uri "http://127.0.0.1:11434/api/generate" -Method Post -Body $body -ContentType "application/json"
 ```
+Expected: a JSON response with `"response"` field with a short text answer.
 Wait a moment, then verify it responds:
 ```powershell
 $body = @{ model = "qwen2.5:0.5b"; prompt = "hi"; stream = $false } | ConvertTo-Json
