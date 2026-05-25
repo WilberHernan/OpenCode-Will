@@ -144,6 +144,20 @@ go install github.com/engramhq/engram@latest
 ```
 This puts `engram.exe` in `$env:USERPROFILE\go\bin\`. If Go is not in PATH, guide the user.
 
+### 3.4 Install / update gentle-ai CLI
+```powershell
+go install github.com/gentleman-programming/gentle-ai/cmd/gentle-ai@latest
+```
+This is used by the `background-agents` plugin to regenerate the skill registry
+at startup. If not present, the plugin logs a warning and skips the refresh.
+
+### 3.5 Verify Go tools
+```powershell
+gentle-ai version
+engram version 2>$null; if ($?) { Write-Host "engram: OK" } else { Write-Host "engram: installed but version check not supported" }
+```
+Expected: both tools are found without errors.
+
 ---
 
 ## Phase 4: Download ML Models
@@ -250,7 +264,13 @@ Write-Host "JSON is valid"
 
 ## Phase 7: Verification
 
-### 7.1 Test each MCP endpoint
+### 7.1 Verify Go CLI tools
+```powershell
+gentle-ai version
+engram version 2>$null; if ($?) { Write-Host "engram: OK" } else { Write-Host "engram: installed (version check may not be supported)" }
+```
+
+### 7.2 Test each MCP endpoint
 Start OpenCode and verify MCPs appear as enabled:
 - engram
 - magic
