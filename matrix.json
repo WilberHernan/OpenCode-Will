@@ -1,0 +1,19 @@
+{
+  "name": "matrix",
+  "type": "dark",
+
+  "colors": {
+    "background": "#000000",
+    "foreground": "#00ff41",
+    "primary": "#00ff41",
+    "secondary": "#00cc33",
+    "accent": "#39ff14",
+
+    "error": "#ff0033",
+    "warning": "#ccff00",
+    "success": "#00ff66",
+
+    "border": "#003b00",
+    "muted": "#008f11"
+  }
+}

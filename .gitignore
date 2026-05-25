@@ -1,0 +1,22 @@
+# Machine-generated: API keys, absolute paths, per-machine state
+opencode.json
+
+# Node.js dependencies
+node_modules/
+package-lock.json
+
+# Local AI runtime state
+.atl/
+
+# Windows shortcuts
+*.lnk
+
+# OS junk
+Thumbs.db
+.DS_Store
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+*.swo
