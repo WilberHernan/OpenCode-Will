@@ -270,15 +270,6 @@ gentle-ai version
 engram version 2>$null; if ($?) { Write-Host "engram: OK" } else { Write-Host "engram: installed (version check may not be supported)" }
 ```
 
-### 7.2 Test each MCP endpoint
-Start OpenCode and verify MCPs appear as enabled:
-- engram
-- magic
-- mcpollinations
-- context7
-- threejs
-- heroui
-
 ### 7.2 Test voice pipeline
 ```powershell
 # Test recording
@@ -287,14 +278,87 @@ rec -q -r 16000 -c 1 -b 16 "$env:USERPROFILE\Desktop\test.wav" trim 0 3
 whisper-cpp -m base -f "$env:USERPROFILE\Desktop\test.wav"
 ```
 
-### 7.3 Report status to user
-- ✅ / ❌ OpenCode installed
-- ✅ / ❌ Config cloned
-- ✅ / ❌ System dependencies
-- ✅ / ❌ ML models downloaded
-- ✅ / ❌ API keys configured
-- ✅ / ❌ opencode.json generated
-- ✅ / ❌ MCPs responding
+### 7.3 End-to-end smoke test — everything must work
+
+Run these checks. If any fail, stop and fix before proceeding.
+
+#### 7.3.1 Skill registry
+```powershell
+gentle-ai skill-registry refresh --cwd "$env:USERPROFILE\.config\opencode"
+```
+Expected: completes without errors. Shows count of indexed skills.
+
+#### 7.3.2 Engram connectivity
+```powershell
+engram doctor --json 2>$null
+```
+Or if engram doctor doesn't exist:
+```powershell
+engram --help 2>$null; if ($?) { Write-Host "✅ engram CLI responds" } else { Write-Host "❌ engram not found" }
+```
+
+#### 7.3.3 API key validation
+Verify the Magic API key is set:
+```powershell
+if ($env:MAGIC_API_KEY) {
+    Write-Host "✅ MAGIC_API_KEY is set ($($env:MAGIC_API_KEY.Length) chars)"
+} else {
+    Write-Host "❌ MAGIC_API_KEY is NOT set — magic MCP will fail"
+}
+```
+
+#### 7.3.4 opencode.json is valid and has all MCPs
+```powershell
+$config = Get-Content "$env:USERPROFILE\.config\opencode\opencode.json" | ConvertFrom-Json
+$mcps = $config.mcp | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name
+Write-Host "✅ MCPs configured:"
+$mcps | ForEach-Object { Write-Host "  - $_" }
+$expected = @("engram", "magic", "mcpollinations", "context7", "threejs", "heroui")
+$missing = $expected | Where-Object { $_ -notin $mcps }
+if ($missing) { Write-Host "❌ Missing MCPs: $($missing -join ', ')" } else { Write-Host "✅ All expected MCPs present" }
+```
+
+#### 7.3.5 SDD commands available
+```powershell
+Get-ChildItem "$env:USERPROFILE\.config\opencode\commands\sdd-*.md" | ForEach-Object { Write-Host "  📄 $($_.Name)" }
+$sddCount = (Get-ChildItem "$env:USERPROFILE\.config\opencode\commands\sdd-*.md" | Measure-Object).Count
+if ($sddCount -ge 7) { Write-Host "✅ SDD commands: $sddCount found" } else { Write-Host "❌ SDD commands: only $sddCount (expected 7+)" }
+```
+
+#### 7.3.6 Dependencies exist
+```powershell
+$checks = @(
+    @{Name="sox"; Cmd="rec --version 2>&1"},
+    @{Name="whisper-cpp"; Cmd="whisper-cpp --help 2>&1"},
+    @{Name="ollama"; Cmd="ollama --version 2>&1"},
+    @{Name="node"; Cmd="node --version"},
+    @{Name="engram"; Cmd="engram version 2>&1"},
+    @{Name="gentle-ai"; Cmd="gentle-ai version 2>&1"}
+)
+foreach ($c in $checks) {
+    $result = Invoke-Expression $c.Cmd
+    if ($LASTEXITCODE -eq 0) { Write-Host "✅ $($c.Name): OK" } else { Write-Host "❌ $($c.Name): NOT FOUND" }
+}
+```
+
+### 7.4 Report status to user
+```
+🧪 END-TO-END VERIFICATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ / ❌ OpenCode installed
+✅ / ❌ Config cloned from GitHub
+✅ / ❌ System dependencies (sox, whisper-cpp, ollama, node, engram, gentle-ai)
+✅ / ❌ ML models downloaded (whisper base, ollama qwen2.5)
+✅ / ❌ API key configured (MAGIC_API_KEY)
+✅ / ❌ opencode.json generated (all MCPs present)
+✅ / ❌ Skill registry refreshed
+✅ / ❌ Engram responds
+✅ / ❌ Voice pipeline works
+✅ / ❌ SDD commands available
+```
+
+If ALL are ✅ → proceed to Phase 8.
+If any ❌ → fix that step before continuing.
 
 ---
 
