@@ -9,7 +9,36 @@ Execute this plan **phase by phase** when the user says "setup this machine",
 
 ---
 
-## Phase 0: Prerequisites
+## Before You Begin — What the USER must do first
+
+These steps need to happen **before opening OpenCode**, because this config (AGENTS.md,
+setup/plan.md) is what tells the AI what to do. The AI can't read the plan until the
+config is in place.
+
+Share these instructions with the user:
+
+```text
+1. Install git: https://git-scm.com/downloads/win  (or `winget install git`)
+2. Open a NEW PowerShell window (so git is in PATH)
+3. Install scoop:
+       Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+       irm get.scoop.sh | iex
+4. Install OpenCode:
+       scoop install opencode
+5. Clone this config repo:
+       git clone https://github.com/WilberHernan/OpenCode-Will.git "$env:USERPROFILE\.config\opencode"
+6. Open OpenCode (Win+R → type "opencode" → Enter)
+7. Say: "setup this machine" — and I (the AI) will handle everything else.
+```
+
+Verify these steps were done before proceeding. If the repo isn't cloned yet, tell the
+user to close OpenCode, run step 5 above in PowerShell, then reopen OpenCode.
+
+---
+
+## Phase 0: Verify Prerequisites
+
+The user should have done these manually. This phase VERIFIES they exist.
 
 ### 0.1 Detect OS
 ```powershell
@@ -20,30 +49,28 @@ Execute this plan **phase by phase** when the user says "setup this machine",
 ```powershell
 git --version
 ```
-If not found: guide user to install from https://git-scm.com/downloads/win
+If not found: tell the user to install from https://git-scm.com/downloads/win and reopen PowerShell.
 
 ### 0.3 Verify PowerShell version (5.1+)
 ```powershell
 $PSVersionTable.PSVersion
 ```
 
-### 0.4 Install scoop (if not present)
+### 0.4 Verify scoop is installed
 ```powershell
-if (!(Get-Command scoop -ErrorAction SilentlyContinue)) {
-    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-    irm get.scoop.sh | iex
-}
+scoop --version
 ```
+If not found: run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser; irm get.scoop.sh | iex`
 
-### 0.5 Check Node.js/npm — needed for MCPs and plugins
+### 0.5 Verify Node.js/npm — needed for MCPs and plugins
 ```powershell
 node --version
 npm --version
 ```
 If not found: guide user to install from https://nodejs.org/ (LTS version, default options).
-After install, close and reopen PowerShell or run `refreshenv` (if using scoop).
+After install: close and reopen PowerShell or run `refreshenv`.
 
-### 0.6 Install Go (if not present) — needed for engram binary
+### 0.6 Verify Go — needed for engram binary
 ```powershell
 go version
 ```
@@ -52,39 +79,34 @@ After install: close and reopen PowerShell or run `refreshenv` so `$env:USERPROF
 
 ---
 
-## Phase 1: Install OpenCode
+## Phase 1: Verify OpenCode Installation
 
-### 1.1 Install via scoop
-```powershell
-scoop install opencode
-```
-Or if the user prefers winget:
-```powershell
-winget install opencode
-```
+The user should have installed OpenCode before opening it.
 
-### 1.2 Verify installation
+### 1.1 Verify installation
 ```powershell
 opencode version
 ```
+If not found: run `scoop install opencode`, then restart OpenCode.
 
 ---
 
-## Phase 2: Clone / Update Config
+## Phase 2: Verify Config is Cloned
 
-### 2.1 Clone the repository
+The user should have cloned the repo to `%USERPROFILE%\.config\opencode`.
+
+### 2.1 Check the config directory
 ```powershell
 $configDir = "$env:USERPROFILE\.config\opencode"
-if (Test-Path $configDir) {
-    Write-Host "Config directory already exists."
-    if (Test-Path "$configDir\.git") {
-        Write-Host "It's a git repo. Run 'git pull' to update."
-    } else {
-        Write-Host "WARNING: Directory exists but is NOT a git repo."
-        Write-Host "Back up any custom files, then delete the directory and clone fresh."
-    }
+if (Test-Path "$configDir\.git") {
+    Write-Host "✅ Config repo is cloned"
+    Set-Location $configDir
+    git status
 } else {
-    git clone https://github.com/WilberHernan/OpenCode-Will.git $configDir
+    Write-Host "❌ Config repo not found at $configDir"
+    Write-Host "Close OpenCode, then run this in PowerShell:"
+    Write-Host "git clone https://github.com/WilberHernan/OpenCode-Will.git `"$configDir`""
+    Write-Host "Then reopen OpenCode and say 'setup this machine' again."
 }
 ```
 

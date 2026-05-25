@@ -181,6 +181,23 @@ When the user says any variation of "setup this machine", "setup", "install", or
 3. Ask the user before each phase (unless they said "auto")
 4. After each phase, summarize and ask "Continue?"
 
+### First-time setup — what to tell the user
+
+If this is a BRAND NEW machine (OpenCode just opened for the first time), the user
+NEEDS to close OpenCode and do these steps manually first (the config repo must be
+cloned before the AI can read the plan):
+
+```
+1. Install git, scoop (if not installed)
+2. scoop install opencode
+3. git clone https://github.com/WilberHernan/OpenCode-Will.git "$env:USERPROFILE\.config\opencode"
+4. Reopen OpenCode, say "setup this machine" again
+```
+
+If the config is already cloned (check for `$env:USERPROFILE\.config\opencode\.git`),
+you can proceed directly with Phase 0 — the "Before You Begin" section in setup/plan.md
+will handle this gracefully.
+
 ### What NOT to do
 
 - Do NOT run setup phases in parallel
