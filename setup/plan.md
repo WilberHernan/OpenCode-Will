@@ -125,33 +125,33 @@ if (Test-Path "$configDir\.git") {
 
 ## Phase 3: System Dependencies
 
-### 3.1 Install scoop packages
+### 3.1 Add Gentleman Programming scoop bucket
 ```powershell
-scoop install sox whisper-cpp ollama
+scoop bucket add gentleman https://github.com/Gentleman-Programming/scoop-bucket
+```
+If it already exists, scoop will say so — that's fine.
+
+### 3.2 Install scoop packages
+```powershell
+scoop install sox whisper-cpp ollama gentle-ai
 ```
 These are idempotent — scoop skips already-installed packages.
+`gentle-ai` comes from the Gentleman bucket added in step 3.1.
 
-### 3.2 Install npm dependencies
+### 3.3 Install npm dependencies
 ```powershell
 cd $env:USERPROFILE\.config\opencode
 npm install
 ```
 This installs `@opencode-ai/plugin` and `unique-names-generator`.
 
-### 3.3 Install engram binary
+### 3.4 Install engram binary
 ```powershell
 go install github.com/engramhq/engram@latest
 ```
 This puts `engram.exe` in `$env:USERPROFILE\go\bin\`. If Go is not in PATH, guide the user.
 
-### 3.4 Install / update gentle-ai CLI
-```powershell
-go install github.com/gentleman-programming/gentle-ai/cmd/gentle-ai@latest
-```
-This is used by the `background-agents` plugin to regenerate the skill registry
-at startup. If not present, the plugin logs a warning and skips the refresh.
-
-### 3.5 Verify Go tools
+### 3.5 Verify CLI tools
 ```powershell
 gentle-ai version
 engram version 2>$null; if ($?) { Write-Host "engram: OK" } else { Write-Host "engram: installed but version check not supported" }
