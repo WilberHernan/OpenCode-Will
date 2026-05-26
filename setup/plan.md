@@ -151,7 +151,16 @@ go install github.com/engramhq/engram@latest
 ```
 This puts `engram.exe` in `$env:USERPROFILE\go\bin\`. If Go is not in PATH, guide the user.
 
-### 3.5 Verify CLI tools
+### 3.5 Clone and build UI-Architect-MCP
+```powershell
+git clone https://github.com/foduucom/UI-Architect-MCP.git "$env:USERPROFILE\.config\opencode\tools\ui-architect"
+cd "$env:USERPROFILE\.config\opencode\tools\ui-architect"
+npm install
+npm run build
+```
+This installs the UI Architect MCP (16 tools for generating production-ready pages with real images, animations, SEO). If `git clone` fails, guide the user to install git.
+
+### 3.6 Verify CLI tools
 ```powershell
 gentle-ai version
 engram version 2>$null; if ($?) { Write-Host "engram: OK" } else { Write-Host "engram: installed but version check not supported" }
