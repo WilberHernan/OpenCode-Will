@@ -224,23 +224,14 @@
                                            ]
                            },
                 "mcpollinations":  {
-                                       "type":  "local",
-                                       "enabled":  true,
-                                       "command":  [
-                                                       "npx",
-                                                       "-y",
-                                                       "@pinkpixel/mcpollinations"
-                                                   ]
-                                   },
-                "systembridge":  {
-                                    "type":  "local",
-                                    "enabled":  true,
-                                    "command":  [
-                                                   "npx",
-                                                   "-y",
-                                                   "systembridge-mcp"
-                                               ]
-                                }
+                                        "type":  "local",
+                                        "enabled":  true,
+                                        "command":  [
+                                                        "npx",
+                                                        "-y",
+                                                        "@pinkpixel/mcpollinations"
+                                                    ]
+                                    }
             },
     "permission":  {
                        "bash":  {
